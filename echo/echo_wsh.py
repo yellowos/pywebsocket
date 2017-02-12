@@ -1,3 +1,15 @@
+
+# Yellow One Study construct an remote control system base on the Google pywebsocket project
+# The origin version of the Google pywebsocket is reference on https://github.com/google/pywebsocket
+# This remote control system hardware version is beaglebone black REV.C
+# Hardware detail information can reference
+# http://www.ti.com/tool/beaglebk
+
+# Operation system: Debian
+# CPU: AM3358BZCZ100 from Texas Instruments
+# the detail of this process can reference
+# http://www.ti.com/lsds/ti/processors/sitara/arm_cortex-a8/am335x/overview.page
+
 # Copyright 2011, Google Inc.
 # All rights reserved.
 #
@@ -28,31 +40,35 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+
+
+
 _GOODBYE_MESSAGE = u'Goodbye'
 
-
+# The example function of Google
 def web_socket_do_extra_handshake(request):
     # This example handler accepts any request. See origin_check_wsh.py for how
     # to reject access from untrusted scripts based on origin value.
 
     pass  # Always accept.
+# Until here
 
 def action_device(device_no, act):
     #initial gpio
     print "try initial gpio"+device_no
     open_io = open("/sys/class/gpio/export", "w")
-    open_io.write(light_no)
+    open_io.write(device_no)
     # open_io.close()
     print "initial finish"
     # set gpio mode
     print "try to set mode"
-    mode_io = open("/sys/class/gpio/gpio"+device_no+"/direction", "wb")
+    mode_io = open("/sys/class/gpio/gpio/"+device_no+"/direction", "wb")
     mode_io.write("out")
     mode_io.close()
     print "set finish"
     # write date and control the device
     print "set data"
-    write_io = open("/sys/class/gpio/gpio66/value", "wb")
+    write_io = open("/sys/class/gpio/"+device_no+"/value", "wb")
     write_io.write(act)
     write_io.close()
     print "data set finish"
@@ -74,7 +90,7 @@ def answer_device(device_no):
     print "set finish"
     # write date and control the device
     print "set data"
-    read_io = open("/sys/class/gpio/gpio66/value", "wb")
+    read_io = open("/sys/class/gpio/"+device_no+"/value", "wb")
     read_date = read_io.read()
     read_io.close()
     print "data read finish"
@@ -93,6 +109,12 @@ def answer_sensor(sensor_no):
     print "try to get date"
     read_sensor = open("/sys/bus/iio/devices/iio:device0/in_voltage"+sensor_no+"_raw", "wb")
     read_date = read_sensor.read()
+    read_sensor.close()
+    print "try to process date"
+    # The input and output value of function date_process() are all strings , don't try to process it
+    temperature = date_process(read_date)
+    print "process finish"
+    return temperature
 
 def answer_all():
     print "try to read all date"
@@ -101,15 +123,16 @@ def answer_all():
     date_light3 = answer_device("69")
     date_light4 = answer_device("68")
     date_fan1 = answer_device("45")
+    print "all date has been reading"
+    # If need get sensor date delete the '#' in the front of the next line
     # date_sensor = answer_sensor("0")
     # process date
+    print "try to gather information"
     date_return = "light1"+date_light1+"\n"+"light2"+date_light2+"\n"+"light3"+date_light3+"\n"+"light4"+date_light4\
                   + "\n"+"fan1"+date_fan1+"\n"
     #              +"sensor"+date_sensor+"\n"
-
+    # If need return sensor date(in this project is temperature), please delete the '#' in the front of forward line
     return date_return
-
-
 
 def web_socket_transfer_data(request):
     while True:
@@ -202,8 +225,8 @@ def web_socket_transfer_data(request):
 
             else:
                 print "illegal command"
-                request.ws_stream.send_message("error")
-                # reaction finish
+                request.ws_stream.send_message("error illegal command")
+            # reaction finish
             if line == _GOODBYE_MESSAGE:
                 return
         else:
