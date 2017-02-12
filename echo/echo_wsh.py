@@ -197,20 +197,8 @@ def web_socket_transfer_data(request):
 
             elif line == "000000":
                 print "000000, receive"
-                # initial adc model
-                open_adc = open("/sys/devices/bone_capemgr.9/slots", "w")
-                open_adc.write("BB-ADC")
-                open_adc.close()
-                # read date
-                read_adc0 = open("/sys/bus/iio/devices/iio:device0/in_voltage0_raw", "r+")
-                read_adc1 = open("/sys/bus/iio/devices/iio:device0/in_voltage1_raw", "r+")
-                read_date0 = read_adc0.read()
-                read_date1 = read_adc1.read()
-                # read_adc0.close()
-                # read_adc1.close()
-                # process date
-                # send date
-                request.ws_stream.send_message(read_date0 + read_date1, binary=False)
+                all_date = answer_all()
+                request.ws_stream.send_message(all_date, binary=False)
 
             else:
                 print "illegal command"
