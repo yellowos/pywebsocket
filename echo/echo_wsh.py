@@ -55,7 +55,7 @@ def web_socket_do_extra_handshake(request):
 
 def action_device(device_no, act):
     #initial gpio
-    # print "try initial gpio"+device_no
+    print "try write gpio"+device_no
     # open_io = open("/sys/class/gpio/export", "w")
     # open_io.write(device_no)
     # open_io.close()
@@ -71,14 +71,14 @@ def action_device(device_no, act):
     write_io = open("/sys/class/gpio/gpio"+device_no+"/value", "w+")
     write_io.write(act)
     write_io.close()
-    print "date "+act+"has writen success"
+    print "date "+act+" has writen success"
     print "data set finish"
     print "#########################"
     print "#########################"
     return
 
 def answer_device(device_no):
-    # print "try initial gpio"+device_no
+    print "try read gpio"+device_no
     # open_io = open("/sys/class/gpio/export", "w")
     # open_io.write(device_no)
     # open_io.close()
@@ -93,7 +93,7 @@ def answer_device(device_no):
     print "read data"
     read_io = open("/sys/class/gpio/gpio"+device_no+"/value", "r+")
     read_date = read_io.read()
-    print "the date that has been read is"+read_date
+    print "the date that has been read is "+read_date
     read_io.close()
     print "data read finish"
     print "#########################"
@@ -103,7 +103,7 @@ def answer_device(device_no):
     else :
         return "This device is closed"
 
-def date_process(voltage_str)
+def date_process(voltage_str):
     print "date process"
     print "the adc date is"+voltage_str
     voltage_float = float(voltage_str)
@@ -178,12 +178,12 @@ def web_socket_transfer_data(request):
             elif line == "000200":
                 print "000200, receive"
                 action_device("67", "1")
-                request.ws_stream.send_message("commend 000200 receive,light 1 has opend", binary=False)
+                request.ws_stream.send_message("commend 000200 receive,light 2 has opend", binary=False)
 
             elif line == "000201":
                 print "000201, receive"
                 action_device("67", "0")
-                request.ws_stream.send_message("commend 000201 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000201 receive,light 2 has closed", binary=False)
 
             elif line == "000211":
                 print "000211,receive"
@@ -193,47 +193,47 @@ def web_socket_transfer_data(request):
             elif line == "000300":
                 print "000300, receive"
                 action_device("69", "1")
-                request.ws_stream.send_message("commend 000300 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000300 receive,light 3 has closed", binary=False)
 
             elif line == "000301":
                 print "000301, receive"
                 action_device("69", "0")
-                request.ws_stream.send_message("commend 000301 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000301 receive,light 3 has closed", binary=False)
 
             elif line == "000311":
                 print "000311,receive"
                 device_date = answer_device("69")
-                request.ws_stream.send_message("commend 000311 receive"+device_date, binary=False)
+                request.ws_stream.send_message("commend 000311 receive "+device_date, binary=False)
 
             elif line == "000400":
                 print "000400, receive"
                 action_device("68", "1")
-                request.ws_stream.send_message("commend 000400 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000400 receive,light 4 has closed", binary=False)
 
             elif line == "000401":
                 print "000401, receive"
                 action_device("68", "0")
-                request.ws_stream.send_message("commend 000401 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000401 receive,light 4 has closed", binary=False)
 
             elif line == "000411":
                 print "000411,receive"
                 device_date = answer_device("68")
-                request.ws_stream.send_message("commend 000411 receive"+device_date, binary=False)
+                request.ws_stream.send_message("commend 000411 receive "+device_date, binary=False)
 
             elif line == "000500":
                 print "000500, receive"
                 action_device("45", "1")
-                request.ws_stream.send_message("commend 000500 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000500 receive,fan 1 has closed", binary=False)
 
             elif line == "000501":
                 print "000501, receive"
                 action_device("45", "0")
-                request.ws_stream.send_message("commend 000501 receive,light 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000501 receive,fan 1 has closed", binary=False)
 
             elif line == "000511":
                 print "000511,receive"
                 device_date = answer_device("45")
-                request.ws_stream.send_message("commend 000511 receive"+device_date, binary=False)
+                request.ws_stream.send_message("commend 000511 receive "+device_date, binary=False)
 
 
             elif line == "000000":
