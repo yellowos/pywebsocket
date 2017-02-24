@@ -110,7 +110,21 @@ void adc_install(void)
     stream=fopen("/sys/devices/bone_capemgr.9/slots","w");
     fwrite("BB-ADC",sizeof(int),6,stream);
     fclose(stream);
+    printf("ADC initial finish");
+
 }
+
+void uart_install(void)
+{
+    FILE *stream = NULL;
+
+    stream=fopen("/sys/devices/bone_capemgr.9/slots","w");
+    fwrite("BB-UART1",sizeof(int),8,stream);
+    fclose(stream);
+    printf("UART initial finish");
+
+}
+
 
 
 int main()
@@ -131,5 +145,6 @@ int main()
     read_gpio(45);
     
     adc_install();
+    uart_install();
     
 }
