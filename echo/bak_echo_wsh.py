@@ -55,85 +55,66 @@ def web_socket_do_extra_handshake(request):
 
 def action_device(device_no, act):
     #initial gpio
-    print "try write gpio"+device_no
-    # open_io = open("/sys/class/gpio/export", "w")
-    # open_io.write(device_no)
+    print "try initial gpio"+device_no
+    open_io = open("/sys/class/gpio/export", "w")
+    open_io.write(device_no)
     # open_io.close()
-    # print "initial finish"
+    print "initial finish"
     # set gpio mode
-    # print "try to set mode"
-    # mode_io = open("/sys/class/gpio/gpio"+device_no+"/direction", "w+")
-    # mode_io.write("out")
-    # mode_io.close()
-    # print "set finish"
+    print "try to set mode"
+    mode_io = open("/sys/class/gpio/gpio/"+device_no+"/direction", "wb")
+    mode_io.write("out")
+    mode_io.close()
+    print "set finish"
     # write date and control the device
     print "set data"
-    # write_io = open("/dev/ttyO1","w")
-    write_io = open("/sys/class/gpio/gpio"+device_no+"/value", "w+")
+    write_io = open("/sys/class/gpio/"+device_no+"/value", "wb")
     write_io.write(act)
     write_io.close()
-    print "date "+act+" has writen success"
     print "data set finish"
     print "#########################"
     print "#########################"
     return
 
 def answer_device(device_no):
-    print "try read gpio"+device_no
-    # open_io = open("/sys/class/gpio/export", "w")
-    # open_io.write(device_no)
+    print "try initial gpio"+device_no
+    open_io = open("/sys/class/gpio/export", "w")
+    open_io.write(light_no)
     # open_io.close()
-    # print "initial finish"
+    print "initial finish"
     # set gpio mode
-    # print "try to set mode"
-    # mode_io = open("/sys/class/gpio/gpio" + device_no + "/direction", "w+")
-    # mode_io.write("out")
-    # mode_io.close()
-    # print "set finish"
+    print "try to set mode"
+    mode_io = open("/sys/class/gpio/gpio" + device_no + "/direction", "wb")
+    mode_io.write("out")
+    mode_io.close()
+    print "set finish"
     # write date and control the device
-    print "read data"
-    read_io = open("/sys/class/gpio/gpio"+device_no+"/value", "r+")
+    print "set data"
+    read_io = open("/sys/class/gpio/"+device_no+"/value", "wb")
     read_date = read_io.read()
-    print "the date that has been read is "+read_date
     read_io.close()
     print "data read finish"
     print "#########################"
     print "#########################"
-    if int(read_date) == int('1'):
+    if read_date == "1":
         return "This device is open"
-    else :
+    else:
         return "This device is closed"
 
-def date_process(voltage_str):
-    print "date process"
-    print "the adc date is"+voltage_str
-    voltage_float = float(voltage_str)
-    resister_const = 100.0
-    resister = (voltage_float*resister_const)/(4096.0-voltage_float)
-    temperature = 0.000006*(resister**4)-0.0008*(resister**3)+0.0482*(resister**2)-1.6922*resister+32.759
-    temperature_str = str(temperature)
-    print "process finish, the temperature is "+temperature_str
-    return temperature_str
-
-
-
 def answer_sensor(sensor_no):
-    # print "try initial sensor"+sensor_no
-    # open_sensor = open("/sys/devices/bone_capemgr.9/slots", "w")
-    # open_sensor.write("BB-ADC")
-    # print "initial finish"
+    print "try initial sensor"+sensor_no
+    open_sensor = open("/sys/devices/bone_capemgr.9/slots", "w")
+    open_sensor.write("BB-ADC")
+    print "initial finish"
     print "try to get date"
-    read_sensor = open("/sys/bus/iio/devices/iio:device0/in_voltage"+sensor_no+"_raw", "rb")
+    read_sensor = open("/sys/bus/iio/devices/iio:device0/in_voltage"+sensor_no+"_raw", "wb")
     read_date = read_sensor.read()
     read_sensor.close()
     print "try to process date"
     # The input and output value of function date_process() are all strings , don't try to process it
     temperature = date_process(read_date)
-    print "temperature is "+temperature
     print "process finish"
     return temperature
-
-
 
 def answer_all():
     print "try to read all date"
@@ -144,11 +125,11 @@ def answer_all():
     date_fan1 = answer_device("45")
     print "all date has been reading"
     # If need get sensor date delete the '#' in the front of the next line
-    date_sensor = answer_sensor("0")
+    # date_sensor = answer_sensor("0")
     # process date
     print "try to gather information"
     date_return = "light1"+date_light1+"\n"+"light2"+date_light2+"\n"+"light3"+date_light3+"\n"+"light4"+date_light4\
-                  + "\n"+"fan1"+date_fan1+"\n"+"sensor"+date_sensor+"\n"
+                  + "\n"+"fan1"+date_fan1+"\n"
     #              +"sensor"+date_sensor+"\n"
     # If need return sensor date(in this project is temperature), please delete the '#' in the front of forward line
     return date_return
@@ -179,12 +160,12 @@ def web_socket_transfer_data(request):
             elif line == "000200":
                 print "000200, receive"
                 action_device("67", "1")
-                request.ws_stream.send_message("commend 000200 receive,light 2 has opend", binary=False)
+                request.ws_stream.send_message("commend 000200 receive,light 1 has closed", binary=False)
 
             elif line == "000201":
                 print "000201, receive"
                 action_device("67", "0")
-                request.ws_stream.send_message("commend 000201 receive,light 2 has closed", binary=False)
+                request.ws_stream.send_message("commend 000201 receive,light 1 has closed", binary=False)
 
             elif line == "000211":
                 print "000211,receive"
@@ -194,47 +175,47 @@ def web_socket_transfer_data(request):
             elif line == "000300":
                 print "000300, receive"
                 action_device("69", "1")
-                request.ws_stream.send_message("commend 000300 receive,light 3 has closed", binary=False)
+                request.ws_stream.send_message("commend 000300 receive,light 1 has closed", binary=False)
 
             elif line == "000301":
                 print "000301, receive"
                 action_device("69", "0")
-                request.ws_stream.send_message("commend 000301 receive,light 3 has closed", binary=False)
+                request.ws_stream.send_message("commend 000301 receive,light 1 has closed", binary=False)
 
             elif line == "000311":
                 print "000311,receive"
                 device_date = answer_device("69")
-                request.ws_stream.send_message("commend 000311 receive "+device_date, binary=False)
+                request.ws_stream.send_message("commend 000311 receive"+device_date, binary=False)
 
             elif line == "000400":
                 print "000400, receive"
                 action_device("68", "1")
-                request.ws_stream.send_message("commend 000400 receive,light 4 has closed", binary=False)
+                request.ws_stream.send_message("commend 000400 receive,light 1 has closed", binary=False)
 
             elif line == "000401":
                 print "000401, receive"
                 action_device("68", "0")
-                request.ws_stream.send_message("commend 000401 receive,light 4 has closed", binary=False)
+                request.ws_stream.send_message("commend 000401 receive,light 1 has closed", binary=False)
 
             elif line == "000411":
                 print "000411,receive"
                 device_date = answer_device("68")
-                request.ws_stream.send_message("commend 000411 receive "+device_date, binary=False)
+                request.ws_stream.send_message("commend 000411 receive"+device_date, binary=False)
 
             elif line == "000500":
                 print "000500, receive"
                 action_device("45", "1")
-                request.ws_stream.send_message("commend 000500 receive,fan 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000500 receive,light 1 has closed", binary=False)
 
             elif line == "000501":
                 print "000501, receive"
                 action_device("45", "0")
-                request.ws_stream.send_message("commend 000501 receive,fan 1 has closed", binary=False)
+                request.ws_stream.send_message("commend 000501 receive,light 1 has closed", binary=False)
 
             elif line == "000511":
                 print "000511,receive"
                 device_date = answer_device("45")
-                request.ws_stream.send_message("commend 000511 receive "+device_date, binary=False)
+                request.ws_stream.send_message("commend 000511 receive"+device_date, binary=False)
 
 
             elif line == "000000":
